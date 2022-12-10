@@ -15,10 +15,10 @@ class sodar_netcdf:
     Each NetCDF file should contain 1 time step of data.
     """
 
-    def __init__(self, info, conf):
 
+    def __init__(self, info, conf):
         self.path = os.path.join(
-            (pathlib.Path(os.getcwd()).parent), str(info['path'])
+            (pathlib.Path(os.getcwd())), str(info['path'])
             )
         self.var = info['var']
         self.target_var = info['target_var']
@@ -27,14 +27,11 @@ class sodar_netcdf:
 
     def get_ts(self, lev):
         """Get time series at a certain height."""
-
         df = pd.DataFrame({'t': [], self.target_var: []})
 
         # To print an empty line before masked value error messages
         mask_i = 0
-
         for file in os.listdir(self.path):
-
             data = Dataset(os.path.join(self.path, file), 'r')
 
             s = '_'.join(file.split('.')[3:5])
@@ -53,7 +50,7 @@ class sodar_netcdf:
 
             data.close()
 
-            df = df.append([{'t': t, self.target_var: ws}])
+            df = pd.concat([df,pd.DataFrame.from_records([{'t': t, self.target_var: ws}])])
 
         df = df.set_index('t').sort_index()
 
